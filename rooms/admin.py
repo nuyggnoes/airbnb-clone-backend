@@ -3,14 +3,25 @@ from .models import Room, Amenity
 # Register your models here.
 
 
+@admin.action(description="Set all prices to zero")
+def reset_prices(model_admin, request, rooms):
+
+    for room in rooms.all():
+        room.price = 0
+        room.save()
+
+
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
+
+    actions = (reset_prices,)
 
     list_display = (
         "name",
         "price",
         "kind",
         "total_amenities",
+        "rating",
         "owner",
         "created_at",
     )
@@ -24,9 +35,9 @@ class RoomAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
-
-    def total_amenities(self, room):
-        return room.amenities.count()
+    search_fields = (
+        "owner__username",
+    )
 
 
 @admin.register(Amenity)
